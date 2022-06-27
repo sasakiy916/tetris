@@ -17,8 +17,16 @@
         <canvas id="cvs"></canvas>
        </div> 
         <script>
+            //スタート時刻
+            let startTime;
+            //プレイ時間
+            let playTime = 0;
             //落下サイクル(小さい方が速い)
-            const speed = 300;
+            let speed = 300;
+            //落下スピードアップ
+            const speedUp = 0.9;
+            //スピードアップまでのカウント
+            let speedCount = 10;
             //ブロック1マスの大きさ
             const blockSize=30;
             //ボードサイズ
@@ -161,6 +169,11 @@
                 ctx.font = "20px 'MS ゴシック'";
                 ctx.fillStyle = "white";
                 ctx.fillText(s+point,10,30);
+                //経過時間
+                let now = new Date();
+                playTime = Math.floor((now.getTime() -startTime)/1000);
+                const playTimeText = "プレイ時間:"+playTime+"秒";
+                ctx.fillText(playTimeText,canvasW-ctx.measureText(playTimeText).width-10,30);
             };
             //ブロック一つを描画する
             const drawBlock=(x,y,tet_idx)=>{
@@ -251,6 +264,11 @@
                         }
                     }
                 }
+                if(--speedCount === 0){
+                    speed *= speedUp;
+                    setInterval(dropTet,speed);
+                    speedCount = 10;
+                }
             };
             //揃ったラインを消す
             const clearLine =()=>{
@@ -324,11 +342,13 @@
                 //テスト用
                 // board[3][5]=1;
 
-                console.log(point);
                 //最初のテトリミノを抽選
                 tet_idx = randomIdx();
                 tet = tetTypes[tet_idx];
                 initStartPos();
+                //スタートタイム
+                var now = new Date();
+                startTime = now.getTime();
                 //繰り返し処理
                 timerId = setInterval(dropTet,speed);
                 draw();
